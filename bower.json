@@ -1,0 +1,20 @@
+{
+  "name": "lastfm-export",
+  "version": "0.0.0",
+  "homepage": "https://github.com/benfoxall/lastfm-export",
+  "authors": [
+    "Ben Foxall <benfoxall@gmail.com>"
+  ],
+  "description": "A tool for exporting scrobbles",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "tests"
+  ],
+  "dependencies": {
+    "reqwest": "~1.1.0"
+  }
+}
