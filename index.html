@@ -1,0 +1,33 @@
+<html>
+<head>
+  <title>Last.fm exporter</title>
+  <style type="text/css">
+    body{font-family: Helvetica,sans-serif;color:#222;}
+    input,label{display:block;}
+    label{padding-bottom: 1em}
+  </style>
+</head>
+<body>
+  <h1>Last.fm exporter</h1>
+
+  <h2>Step 1 - get a Last.fm api key web services key</h2>
+
+  <p>Visit <a href="http://www.last.fm/api">Last.fm Web Services</a> and create and <a href="http://www.last.fm/api/accounts">api account</a></p>
+
+  <h2>Step 2 - enter details below</h2>
+
+  <form>
+    <label>
+      api key
+      <input placeholder="0123456789abcdef0123456789abcdef" type="text" id="key" size="40">
+    </label>
+    <label>
+      lastfm username
+      <input placeholder="benjaminf" type="text" id="username" size="40">
+    </label>
+
+    <input type="submit" value="Generate csv"/>
+  </form>
+
+</body>
+</html>
