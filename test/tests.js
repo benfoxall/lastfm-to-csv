@@ -145,8 +145,38 @@ describe('extract tracks', function(){
 describe('row', function(){
 
   it('works', function(){
-    row('a b'.split(' '), {b: 100, a: 20, c: 30})
+    row(['a','b'], {b: 100, a: 20, c: 30})
     .should.eql([20, 100])
+  })
+
+})
+
+describe('csv', function(){
+
+  it('works for numbers', function(){
+    csv([1,2,3])
+    .should.eql('1,2,3')
+  })
+
+  it('works for strings', function(){
+    csv(['one',2,'three'])
+    .should.eql('one,2,three')
+  })
+
+  // it('escapes ,', function(){
+  //   csv(['one',',','three'])
+  //   .should.eql('one,",",three')
+  // })
+
+  // it('escapes "', function(){
+  //   csv(['one','"','three'])
+  //   .should.eql('one,"\\"",three')
+  // })
+
+  it('removes problem characters', function(){
+    csv(['o"n"e',',two,','"three"'])
+    .should.eql('one,two,three')
+
   })
 
 })

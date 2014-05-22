@@ -9,6 +9,7 @@ function lastFM(data){
   })
 }
 
+// generate data for a request
 function requestData(api_key, user, page){
   return {
     method:'user.getrecenttracks',
@@ -19,7 +20,6 @@ function requestData(api_key, user, page){
   }
 }
 
-
 // generate a list of request data objects
 function requestList(api_key, user, page_count){
   var requests = [];
@@ -29,7 +29,7 @@ function requestList(api_key, user, page_count){
   return requests
 }
 
-
+// extract the data from the xml response
 function extractTracks(doc){
 
   // probably nicer ways to do this
@@ -48,12 +48,24 @@ function extractTracks(doc){
   return arr;
 }
 
-
+// pull out a row of keys
 function row(keys, obj){
   return keys.map(function(k){
     return obj[k]
   })
 }
+
+// create a csv row from an array
+function csv(array){
+
+  // this is not a world class csv generator
+  return array.map(function(item){
+    return  typeof(item) === 'string' ? 
+      item.replace(/[\",]/g,'') :
+      item;
+  }).join(',')
+}
+
 
 
 reqwest({
