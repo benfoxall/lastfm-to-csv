@@ -5,7 +5,8 @@ var username = 'benjaminf',
 function lastFM(data){
   return reqwest({
     url:"http://ws.audioscrobbler.com/2.0/",
-    data: data
+    data: data,
+    type: 'xml'
   })
 }
 
@@ -48,6 +49,12 @@ function extractTracks(doc){
   return arr;
 }
 
+function extractPageCount(doc){
+  console.log(doc)
+  var recenttracks = doc.evaluate('lfm/recenttracks', doc).iterateNext()
+  return parseInt(recenttracks.getAttribute('totalPages'), 10)
+}
+
 // pull out a row of keys
 function row(keys, obj){
   return keys.map(function(k){
@@ -67,46 +74,26 @@ function csv(array){
 }
 
 
+/*
+var output = [];
 
-reqwest({
-  url:"http://ws.audioscrobbler.com/2.0/",
-  data: {
-    method:'user.getrecenttracks',
-    user:username,
-    api_key:key,
-    limit:200,
-    page:0
-  },
-  type:'xml'
-})
-.then(function (resp) {
-  gr = resp;
-  console.log(resp)
-})
+// find the page count
+lastFM(requestData(key, username))
+.then(extractPageCount)
+.then(function(page_count){
 
-
-function requestPage(key, user, page){
-
-  return reqwest({
-    url:"http://ws.audioscrobbler.com/2.0/",
-    data: {
-      method:'user.getrecenttracks',
-      format:'json',
-      user:user,
-      api_key:key,
-      limit:200,
-      page:page
-    }
+  // request all pages
+  requestList(key, username, page_count)
+  .slice(0,5) // actually only 5
+  .forEach(function(r,i){
+    setTimeout(function(){
+      lastFM(r)
+      .then(extractTracks)
+      .then(function(tracks){
+        output[i] = tracks
+      })
+    },  i * 300)
   })
-
-}
-
-
-
-//plan:
-// linking up to a page
-// if a form is submitted,
-// and that form has a key, and username in it
-// replace it with a list of the requests
-// make the requests
+})
+*/
 
