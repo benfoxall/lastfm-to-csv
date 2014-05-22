@@ -50,7 +50,6 @@ function extractTracks(doc){
 }
 
 function extractPageCount(doc){
-  console.log(doc)
   var recenttracks = doc.evaluate('lfm/recenttracks', doc).iterateNext()
   return parseInt(recenttracks.getAttribute('totalPages'), 10)
 }
