@@ -1,6 +1,98 @@
+describe('request data', function(){
+  
+  it('gives correct request properties', function(){
+
+    requestData('my-key', 'benjaminf')
+
+    .should.have.properties({
+      method:'user.getrecenttracks',
+      format:'json',
+      user:'benjaminf',
+      api_key:'my-key',
+      limit:200,
+      page:0
+    })
+
+  })
+
+  it('gives a request properties for page 50', function(){
+
+    requestData('my-key', 'benjaminf', 50)
+
+    .should.have.properties({
+      method:'user.getrecenttracks',
+      format:'json',
+      user:'benjaminf',
+      api_key:'my-key',
+      limit:200,
+      page:50
+    })
+
+  })
+
+})
+
+
+describe("request list", function(){
+  var requests;
+  before(function(){
+    requests = requestList('my-key', 'benjaminf', 3)
+  })
+
+  it('gives 3 request objects', function(){
+    requests.length.should.eql(3)
+  })
+
+  it('gives request objects with ascending pages', function(){
+    var page = 0;
+    requests.forEach(function(request){
+      request.page.should.eql(page++)
+    })
+  })
+})
+
+
+describe('lastFM', function(){
+
+  var request;
+
+  var server, request;
+  before(function () { 
+    server = sinon.fakeServer.create();
+    server.respondWith([200, { "Content-Type": "application/json" }, '{"ok":"true"}']);
+
+    request = lastFM(requestData('my-key', 'benjaminf'))
+
+   });
+  after(function () { server.restore(); });
+
+
+  it('returns a promise', function(){
+    request.should.have.properties('then', 'always')
+  })
+
+  it('makes a request to the server', function(){
+    server.requests.length.should.eql(1)
+  })
+
+  it('used the correct params', function(){
+    var url = server.requests[0].url;
+    url.should.containEql('method=user.getrecenttracks');
+    url.should.containEql('user=benjaminf');
+    url.should.containEql('api_key=my-key');
+  })
+
+})
+
+
+
+
+
+
+
 // this is the first function I'm writing, so it's
 // probably going to be a lot more tested than the rest
-describe('request page', function(){
+xdescribe('request page', function(){
 
   var server, request;
   before(function () { 
@@ -54,7 +146,7 @@ describe('request page', function(){
 })
 
 
-describe('extracting tracks', function(){
+xdescribe('extracting tracks', function(){
 
   var extracting;
   before(function(){
