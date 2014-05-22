@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lfm status="ok">
+<recenttracks user="benjaminf" page="0" perPage="10" totalPages="15412" total="154120" >
+<track> 
+                                    <artist mbid="820eacb5-f27c-4a61-8ec6-5147caaabf89">TEEN</artist>
+            <name>Roses &amp; Wine</name>
+<streamable>0</streamable>
+        <mbid>c8864a47-58c0-4001-904f-4f5eb1a4cce3</mbid>
+            <album mbid="74cbe50c-c1c9-4ba3-bd8f-9b0a1c37ee8f">In Limbo</album>
+    <url>http://www.last.fm/music/TEEN/_/Roses+&amp;+Wine</url>
+    <image size="small">http://userserve-ak.last.fm/serve/34s/80587993.jpg</image>
+    <image size="medium">http://userserve-ak.last.fm/serve/64s/80587993.jpg</image>
+    <image size="large">http://userserve-ak.last.fm/serve/126/80587993.jpg</image>
+    <image size="extralarge">http://userserve-ak.last.fm/serve/300x300/80587993.jpg</image>
+        <date uts="1400789483">22 May 2014, 20:11</date>
+</track>
+<track> 
+                                    <artist mbid="820eacb5-f27c-4a61-8ec6-5147caaabf89">TEEN</artist>
+            <name>Why Why Why</name>
+<streamable>0</streamable>
+        <mbid></mbid>
+            <album mbid="74cbe50c-c1c9-4ba3-bd8f-9b0a1c37ee8f">In Limbo</album>
+    <url>http://www.last.fm/music/TEEN/_/Why+Why+Why</url>
+    <image size="small">http://userserve-ak.last.fm/serve/34s/80587993.jpg</image>
+    <image size="medium">http://userserve-ak.last.fm/serve/64s/80587993.jpg</image>
+    <image size="large">http://userserve-ak.last.fm/serve/126/80587993.jpg</image>
+    <image size="extralarge">http://userserve-ak.last.fm/serve/300x300/80587993.jpg</image>
+        <date uts="1400789128">22 May 2014, 20:05</date>
+</track>
+</recenttracks></lfm>

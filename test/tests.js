@@ -101,6 +101,56 @@ describe('lastFM', function(){
 
 
 
+describe('extract tracks', function(){
+
+  var tracks;
+
+  before(function (done) {
+    reqwest({
+      url:'fixture.small.xml',
+      type:'xml'
+    }).then(function(doc){
+      tracks = extractTracks(doc)
+      done();
+    })
+  });
+
+  it('got two tracks', function(){
+    tracks.length.should.eql(2)
+  })
+
+  it('has correct first track', function(){
+    tracks[0].should.have.properties({
+      artist:'TEEN',
+      name: 'Roses & Wine',
+      album: 'In Limbo',
+      date: '22 May 2014, 20:11',
+      url: 'http://www.last.fm/music/TEEN/_/Roses+&+Wine'
+    })
+  })
+
+  it('has correct second track', function(){
+    tracks[1].should.have.properties({
+      artist:'TEEN',
+      name: 'Why Why Why',
+      album: 'In Limbo',
+      date: '22 May 2014, 20:05',
+      url: 'http://www.last.fm/music/TEEN/_/Why+Why+Why'
+    })
+  })
+
+        // ele.get_text('date'),
+        // ele.get_text('artist'),
+        // ele.get_text('album'),
+        // ele.get_text('name'), # track
+        // ele.get_text('url')
+
+})
+
+
+
+
+
 
 
 // this is the first function I'm writing, so it's

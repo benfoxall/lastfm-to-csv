@@ -30,6 +30,24 @@ function requestList(api_key, user, page_count){
 }
 
 
+function extractTracks(doc){
+
+  // probably nicer ways to do this
+  var arr = [];
+  var track, obj, child;
+  var tracks = doc.evaluate('lfm/recenttracks/track', doc)
+  while (track = tracks.iterateNext()){
+    obj = {};
+    for (var i = track.children.length - 1; i >= 0; i--) {
+      child = track.children[i];
+      obj[child.tagName] = child.textContent;
+    };
+    arr.push(obj)
+  }
+
+  return arr;
+}
+
 
 reqwest({
   url:"http://ws.audioscrobbler.com/2.0/",
@@ -63,12 +81,6 @@ function requestPage(key, user, page){
   })
 
 }
-
-function extractTracks(json){
-  return json.recenttracks.track
-}
-
-
 
 
 
