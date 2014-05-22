@@ -139,14 +139,17 @@ describe('extract tracks', function(){
     })
   })
 
-        // ele.get_text('date'),
-        // ele.get_text('artist'),
-        // ele.get_text('album'),
-        // ele.get_text('name'), # track
-        // ele.get_text('url')
-
 })
 
+
+describe('row', function(){
+
+  it('works', function(){
+    row('a b'.split(' '), {b: 100, a: 20, c: 30})
+    .should.eql([20, 100])
+  })
+
+})
 
 
 

@@ -49,6 +49,13 @@ function extractTracks(doc){
 }
 
 
+function row(keys, obj){
+  return keys.map(function(k){
+    return obj[k]
+  })
+}
+
+
 reqwest({
   url:"http://ws.audioscrobbler.com/2.0/",
   data: {
