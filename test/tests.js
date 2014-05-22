@@ -57,11 +57,26 @@ describe('lastFM', function(){
   var request;
 
   var server, request;
-  before(function () { 
-    server = sinon.fakeServer.create();
-    server.respondWith([200, { "Content-Type": "application/json" }, '{"ok":"true"}']);
+  before(function (done) {
 
-    request = lastFM(requestData('my-key', 'benjaminf'))
+
+    reqwest({
+      url:'fixture.xml',
+      type:'xml'
+    }).then(function(doc){
+      console.log("SDD", doc);
+
+      var xmlstr = (new XMLSerializer()).serializeToString(doc)
+
+      server = sinon.fakeServer.create();
+      server.respondWith([200, { "Content-Type": "application/xml" }, xmlstr]);
+
+      request = lastFM(requestData('my-key', 'benjaminf'))
+
+      done();
+    })
+
+
 
    });
   after(function () { server.restore(); });
