@@ -9,8 +9,15 @@
   <body>
     <div id="mocha"></div>
     <script src="mocha.js"></script>
+    <script src="should.js"></script>
+    <script src="sinon.js"></script>
+    <script src="fixtures.js"></script>
     <script>mocha.setup('bdd')</script>
     <script src="tests.js"></script>
+
+    <script type="text/javascript" src="../bower_components/reqwest/reqwest.js"></script>
+    <script type="text/javascript" src="../js/lastfm-export.js"></script>
+
     <script>
       mocha.run();
     </script>
