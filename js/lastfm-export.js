@@ -12,7 +12,6 @@ function lastFM(data){
 function requestData(api_key, user, page){
   return {
     method:'user.getrecenttracks',
-    format:'json',
     user:user,
     api_key:api_key,
     limit:200,
@@ -36,7 +35,6 @@ reqwest({
   url:"http://ws.audioscrobbler.com/2.0/",
   data: {
     method:'user.getrecenttracks',
-    // format:'json',
     user:username,
     api_key:key,
     limit:200,

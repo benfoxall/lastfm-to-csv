@@ -6,7 +6,6 @@ describe('request data', function(){
 
     .should.have.properties({
       method:'user.getrecenttracks',
-      format:'json',
       user:'benjaminf',
       api_key:'my-key',
       limit:200,
@@ -21,7 +20,6 @@ describe('request data', function(){
 
     .should.have.properties({
       method:'user.getrecenttracks',
-      format:'json',
       user:'benjaminf',
       api_key:'my-key',
       limit:200,
