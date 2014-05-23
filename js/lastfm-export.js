@@ -83,16 +83,21 @@ lastFM(requestData(key, username))
 
   // request all pages
   requestList(key, username, page_count)
-  .slice(0,5) // actually only 5
+  // .slice(0,30) // actually only 5
   .forEach(function(r,i){
     setTimeout(function(){
       lastFM(r)
       .then(extractTracks)
       .then(function(tracks){
-        output[i] = tracks
+        console.log('.')
+        // output[0].map(function(d){return row(['artist', 'name', 'date'], d)}).map(csv).join('\n')
+        output[i] = new Blob([tracks.map(function(d){return row(['artist', 'name', 'date'], d)}).map(csv).join('\n'),'\n'])
       })
-    },  i * 300)
+    },  i * 1000)
   })
 })
-*/
 
+// b = new Blob(output, {type: 'text/csv'})
+// saveAs(b)
+
+*/
