@@ -1,38 +1,30 @@
 <html>
 <head>
   <title>Last.fm exporter</title>
-  <style type="text/css">
-    body{font-family: Helvetica,sans-serif;color:#222;}
-    input,label{display:block;}
-    label{padding-bottom: 1em}
-  </style>
+  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
 </head>
 <body>
-  <h1>Last.fm exporter</h1>
+  <a href="https://github.com/benfoxall/lastfm-export"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
 
-  <h2>Step 1 - get a Last.fm api key web services key</h2>
+  <div class="container">
 
-  <p>Visit <a href="http://www.last.fm/api">Last.fm Web Services</a> and create and <a href="http://www.last.fm/api/accounts">api account</a></p>
+    <h1>Last.fm exporter</h1>
 
-  <h2>Step 2 - enter details below</h2>
+    <form class="form-inline" role="form">
+      <input type="hidden" name="api-key" value="c2899b0774a2eda7769be6eefddd94b6">
 
-  <form>
-    <label>
-      api key
-      <input placeholder="0123456789abcdef0123456789abcdef" type="text" id="key" size="40">
-    </label>
-    <label>
-      lastfm username
-      <input placeholder="benjaminf" type="text" id="username" size="40">
-    </label>
+      <div class="form-group">
+        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user">
+      </div>
 
-    <input type="submit" value="Generate csv"/>
-  </form>
+      <button type="submit" class="btn btn-default btn-lg">Submit</button>
+    </form>
 
-  <script type="text/javascript" src="bower_components/reqwest/reqwest.js"></script>
-  <script type="text/javascript" src="bower_components/FileSaver/FileSaver.js"></script>
-  <script type="text/javascript" src="bower_components/async/lib/async.js"></script>
-  <script type="text/javascript" src="js/lastfm-export.js"></script>
+    <script src="bower_components/reqwest/reqwest.js"></script>
+    <script src="bower_components/FileSaver/FileSaver.js"></script>
+    <script src="bower_components/async/lib/async.js"></script>
+    <script src="js/lastfm-export.js"></script>
 
+  </div>
 </body>
 </html>
