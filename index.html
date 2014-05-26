@@ -4,34 +4,142 @@
   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
 </head>
 <body>
-  <a href="https://github.com/benfoxall/lastfm-export"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <a href="https://github.com/benfoxall/lastfm-export"><img style="position: absolute; top: 0; right: 0; border: 0;" src="gh.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
 
   <div class="container">
 
-    <h1>Last.fm exporter</h1>
+    <div class="page-header">
+      <h1>
+        Last.fm to csv 
+        <small>
+          <a href="#settings" data-toggle="modal" data-target="#settings">
+            <span class="glyphicon glyphicon-cog"></span>
+          </a>
+        </small>
+      </h1>
+    </div>
+    <!-- <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p> -->
 
-    <form class="form-inline" role="form">
-      <input type="hidden" name="api-key" value="c2899b0774a2eda7769be6eefddd94b6">
+    <div id="alerts"></div>
 
+    <form class="form-inline">
       <div class="form-group">
-        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user">
+        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required>
       </div>
-
-      <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+      <button type="submit" class="btn btn-primary btn-lg">Fetch tracks</button>
     </form>
 
-    <div class="well">
+
+    <!-- results panel -->
+
+    <div class="well" id="results" style="display:none">
       <p>
-        <span class="label label-success">1/200 pages</span>
-        <span class="label label-danger">2 errors</span>
+        <span class="label label-success">
+          <span data-bind="page">
+            -
+          </span>/<span data-bind="page-total">
+            -
+          </span>
+          pages</span>
+        <span class="label label-danger">
+          errors: <span data-bind="errors">-</span>
+        </span>
       </p>
-      <p><a class="btn btn-info" href="#download">download <small>xkb</small></a></p>
+      <p>
+        <a class="btn btn-info" href="#download">download 
+          <small><span data-bind="kb">-</span>kb</small>
+        </a>
+      </p>
     </div>
+  
+
+    <!-- settings modal -->
+
+    <div class="modal fade" id="settings">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Extra Settings</h4>
+          </div>
+          <div class="modal-body">
+            <p class="lead">
+              Requests to the lastfm api can be rate limited or fail, use these settings if you start having problems
+            </p>
+            <div class="form-group">
+              <label for="api-key">
+                alternate api key
+              </label>
+              <input type="text" class="form-control input-md" id="api-key" placeholder="0123456789abcdef0123456789abcdef">
+              <p class="help-block">Use an alternative api key - generate one at <a href="http://www.last.fm/api">last.fm/api</a></p>
+            </div>
+            <div class="form-group">
+              <label for="request-delay">
+                request delay
+              </label>
+              <input type="text" class="form-control input-md" id="request-delay" placeholder="200">
+              <p class="help-block">(milliseconds, default 200) how long to wait between making requests</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <script src="bower_components/reqwest/reqwest.js"></script>
     <script src="bower_components/FileSaver/FileSaver.js"></script>
     <script src="bower_components/async/lib/async.js"></script>
     <script src="js/lastfm-export.js"></script>
+
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script type="text/javascript">
+      //hook up the export to the page
+
+      // default_id = c2899b0774a2eda7769be6eefddd94b6
+
+      var bindings = (function(){
+        var elems = {};
+
+        $('[data-bind]').each(function(){
+          elems[$(this).data('bind')] = this;
+        })
+
+        return {
+          update: function(key, value){
+            if(elems[key]) elems[key].innerText = value;
+          }
+        }
+      })();
+
+      $('form').on('submit', function(e){
+        e.preventDefault();
+        $('#alerts').empty();
+
+        var $fields = $('.form-group', this).removeClass('has-error')
+
+        var delay = $('request-delay').val() || 200,
+            key   = $('api-key').val() || 'c2899b0774a2eda7769be6eefddd94b6',
+            user  = $('[name=lastfm-user').val();
+
+        // var api = lastfm(key, delay);
+
+        lastFM(requestData(key, user))
+        .fail(function (err, msg) {
+          $('#alerts').append($('<div class="alert alert-warning">').text("couldn't find user"))
+          $fields.addClass('has-error');
+        })
+        .then(extractPageCount)
+        .then(function(page_count){
+          // console.log("PAGES", page_count);
+          // $('#results').show();
+          // bindings.update('page-total', 1);
+
+        })
+
+      });
+
+    </script>
 
   </div>
 </body>
