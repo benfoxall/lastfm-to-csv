@@ -2,11 +2,17 @@ var username = 'benjaminf',
   key = 'c2899b0774a2eda7769be6eefddd94b6';
 
 // make a request to lastFM
-function lastFM(data){
+function lastFM(data, callback){
   return reqwest({
     url:"http://ws.audioscrobbler.com/2.0/",
     data: data,
-    type: 'xml'
+    type: 'xml',
+    success: function(data){
+      if(callback){callback(false, data)}
+    },
+    error: function(err){
+      if(callback){callback(err)}
+    }
   })
 }
 
@@ -70,6 +76,14 @@ function csv(array){
       item.replace(/[\",]/g,'') :
       item;
   }).join(',')
+}
+
+// delay a function by millis
+function delay(fn, millis){
+  return function(){
+    var args = [].slice.call(arguments);
+    setTimeout.apply(this, [fn,millis].concat(args));
+  }
 }
 
 

@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Last.fm exporter</title>
+  <title>Last.fm to csv</title>
   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
         </small>
       </h1>
     </div>
-    <!-- <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p> -->
+    <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p>
 
     <div id="alerts"></div>
 
@@ -30,26 +30,29 @@
     </form>
 
 
+    <h3>[note: currently only downloads first 10 pages]</h3>
+
     <!-- results panel -->
 
-    <div class="well" id="results" style="display:none">
-      <p>
-        <span class="label label-success">
-          <span data-bind="page">
-            -
-          </span>/<span data-bind="page-total">
-            -
-          </span>
-          pages</span>
+    <div class="panel" id="results" style="display:none">
+      <hr />
+      <h3 data-bind="status">fetching page -/-</h3>
+      <!--p>
+        <span class="label label-warning">
+          retries: <span data-bind="retries">-</span>
+        </span>
+        &nbsp;
         <span class="label label-danger">
           errors: <span data-bind="errors">-</span>
         </span>
-      </p>
+      </p-->
       <p>
         <a class="btn btn-info" href="#download">download 
-          <small><span data-bind="kb">-</span>kb</small>
+          <small><span data-bind="kb">0</span>kb</small>
         </a>
+        <span class="help-block">a partial file can be downloaded while fetching more data</span>
       </p>
+
     </div>
   
 
@@ -98,6 +101,13 @@
 
       // default_id = c2899b0774a2eda7769be6eefddd94b6
 
+      var data = [], kb = 0;
+
+      $('[href=#download]').on('click', function(){
+        b = new Blob(data, {type: 'text/csv'})
+        saveAs(b, ($('[name=lastfm-user').val()||"lastFM") + '.csv')
+      })
+
       var bindings = (function(){
         var elems = {};
 
@@ -114,6 +124,11 @@
 
       $('form').on('submit', function(e){
         e.preventDefault();
+        $('input').attr('disabled',true)
+
+        // the data that will be filled with csv
+        data = [];
+
         $('#alerts').empty();
 
         var $fields = $('.form-group', this).removeClass('has-error')
@@ -128,12 +143,43 @@
         .fail(function (err, msg) {
           $('#alerts').append($('<div class="alert alert-warning">').text("couldn't find user"))
           $fields.addClass('has-error');
+          $('input').attr('disabled',false)
         })
         .then(extractPageCount)
         .then(function(page_count){
+
+          bindings.update('status', "fetching page 0/" + page_count);
+          var current = 0;
+
           // console.log("PAGES", page_count);
-          // $('#results').show();
-          // bindings.update('page-total', 1);
+          $('#results').show();
+          
+          var requests = requestList(key, username, page_count)
+            .slice(0,10)
+            .map(function(r, i){
+              return {
+                data:r,
+                i:i
+              }
+            })
+
+          async.eachSeries(requests, function(item, callback){
+            bindings.update('status', "fetching page " + (item.i+1) + "/" + page_count);
+            lastFM(item.data)
+            .then(extractTracks)
+            .then(function(tracks){
+              var blb = new Blob([tracks.map(function(d){return row(['artist', 'name', 'date'], d)}).map(csv).join('\n'),'\n']);
+              data[item.i] = blb;
+              kb+= blb.size;
+              bindings.update('kb', Math.round(kb/1024));
+            })
+            .always(function(){
+              callback(false);
+            })
+          }, function(){
+            bindings.update('status', "downloaded " + (10||page_count) + " pages");
+            $('[href=#download]').attr('class','btn btn-success');
+          })
 
         })
 

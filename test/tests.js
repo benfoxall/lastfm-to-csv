@@ -54,22 +54,22 @@ describe('lastFM', function(){
 
   var request;
 
-  var server, request;
+  var server, request, callback;
   before(function (done) {
 
+    callback = sinon.spy()
 
     reqwest({
       url:'fixture.xml',
       type:'xml'
     }).then(function(doc){
-      console.log("SDD", doc);
 
       var xmlstr = (new XMLSerializer()).serializeToString(doc)
 
       server = sinon.fakeServer.create();
       server.respondWith([200, { "Content-Type": "application/xml" }, xmlstr]);
 
-      request = lastFM(requestData('my-key', 'benjaminf'))
+      request = lastFM(requestData('my-key', 'benjaminf'), callback)
 
       done();
     })
@@ -93,6 +93,17 @@ describe('lastFM', function(){
     url.should.containEql('method=user.getrecenttracks');
     url.should.containEql('user=benjaminf');
     url.should.containEql('api_key=my-key');
+  });
+
+  describe('success', function(){
+
+    before(function(){
+      server.respond()
+    })
+
+    it('called back', function(){
+      callback.called.should.be.True
+    })
   })
 
 })
@@ -205,3 +216,37 @@ describe('csv', function(){
 })
 
 
+describe('delay', function(){
+  var clock, 
+      delayFn,
+      delayCallback;
+
+  before(function () {
+    clock = sinon.useFakeTimers();
+    delayFn = sinon.spy();
+    delay(delayFn,100)("testing");
+  });
+
+  after(function () { clock.restore(); });
+
+  it("didn't call right away", function(){
+    delayFn.called.should.be.False
+  })
+
+  describe('after 100ms', function(){
+    before(function(){
+      clock.tick(100);
+    });
+
+    it("was called", function(){
+      delayFn.called.should.be.True
+    })
+
+    it('was called with same input', function(){
+      delayFn.calledWith("testing").should.be.True;
+    })
+  })
+
+
+
+})
