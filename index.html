@@ -22,23 +22,21 @@
     </div>
     <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p>
 
-    <div id="alerts"></div>
+    <div class="alert alert-warning" style="display:none" rv-show="user_error">Couldn't find user</div>
 
     <form class="form-inline">
-      <div class="form-group">
-        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required>
+      <div class="form-group" rv-class-has-error="user_error">
+        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required rv-disabled="submitted">
       </div>
-      <button type="submit" class="btn btn-primary btn-lg">Fetch tracks</button>
+      <button type="submit" class="btn btn-primary btn-lg"  rv-disabled="submitted">Fetch tracks</button>
     </form>
 
 
     <h3>[note: currently only downloads first 10 pages]</h3>
 
-    <!-- results panel -->
 
-    <div class="panel" id="results" style="display:none">
-      <hr />
-      <h3 data-bind="status">fetching page -/-</h3>
+    <section id="results" rv-show="submitted">
+      <h1>{ status }</h1>
       <!--p>
         <span class="label label-warning">
           retries: <span data-bind="retries">-</span>
@@ -49,13 +47,13 @@
         </span>
       </p-->
       <p>
-        <a class="btn btn-info" href="#download">download 
-          <small><span data-bind="kb">0</span>kb</small>
+        <a class="btn btn-info" href="#download" rv-class-x="complete">
+          Save 
+          <small>{ kb }kb</small>
         </a>
-        <span class="help-block">a partial file can be downloaded while fetching more data</span>
+        <span class="help-block">a partial file can be saved while fetching more data</span>
       </p>
-
-    </div>
+    </section>
   
 
     <!-- settings modal -->
@@ -91,10 +89,14 @@
     </div>
 
 
+
+
+
     <script src="bower_components/reqwest/reqwest.js"></script>
     <script src="bower_components/FileSaver/FileSaver.js"></script>
     <script src="bower_components/async/lib/async.js"></script>
     <script src="bower_components/comma-separated-values/csv.js"></script>
+    <script src="bower_components/rivets/dist/rivets.js"></script>
     <script src="js/lastfm-export.js"></script>
 
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -102,60 +104,47 @@
     <script type="text/javascript">
       //hook up the export to the page
 
-      // default_id = c2899b0774a2eda7769be6eefddd94b6
+      // the state of the page
+      var state = {
+        status:     '-',
+        kb:         0,
+        submitted:  false,
+        user_error: false,
+        complete:   false
+      };
 
-      var data = [], kb = 0;
+      rivets.bind(document, state)
+
+      var data = [], bytes = 0;
 
       $('[href=#download]').on('click', function(){
         b = new Blob(data, {type: 'text/csv'})
         saveAs(b, ($('[name=lastfm-user').val()||"lastFM") + '.csv')
       })
 
-      var bindings = (function(){
-        var elems = {};
-
-        $('[data-bind]').each(function(){
-          elems[$(this).data('bind')] = this;
-        })
-
-        return {
-          update: function(key, value){
-            if(elems[key]) elems[key].innerText = value;
-          }
-        }
-      })();
-
       $('form').on('submit', function(e){
         e.preventDefault();
-        $('input').attr('disabled',true)
+
+        state.submitted = true;
+        state.user_error = false;
 
         // the data that will be filled with csv
         data = [];
-
-        $('#alerts').empty();
-
-        var $fields = $('.form-group', this).removeClass('has-error')
 
         var delay = $('request-delay').val() || 200,
             key   = $('api-key').val() || 'c2899b0774a2eda7769be6eefddd94b6',
             user  = $('[name=lastfm-user').val();
 
-        // var api = lastfm(key, delay);
-
         lastFM(requestData(key, user))
         .fail(function (err, msg) {
-          $('#alerts').append($('<div class="alert alert-warning">').text("couldn't find user"))
-          $fields.addClass('has-error');
-          $('input').attr('disabled',false)
+          state.submitted = false;
+          state.user_error = true;
         })
         .then(extractPageCount)
         .then(function(page_count){
 
-          bindings.update('status', "fetching page 0/" + page_count);
+          state.status = "fetching page 0/" + page_count;
           var current = 0;
-
-          // console.log("PAGES", page_count);
-          $('#results').show();
           
           var requests = requestList(key, username, page_count)
             .slice(0,10)
@@ -167,20 +156,20 @@
             })
 
           async.eachSeries(requests, function(item, callback){
-            bindings.update('status', "fetching page " + (item.i+1) + "/" + page_count);
+            state.status = "fetching page " + (item.i+1) + "/" + page_count;
             lastFM(item.data)
             .then(extractTracks)
             .then(function(tracks){
               var blb = new Blob([tracks.map(function(d){return row(['artist', 'name', 'date'], d)}).map(csv).join('\n'),'\n']);
               data[item.i] = blb;
-              kb+= blb.size;
-              bindings.update('kb', Math.round(kb/1024));
+              bytes+= blb.size;
+              state.kb = Math.round(bytes/1024);
             })
             .always(function(){
               callback(false);
             })
           }, function(){
-            bindings.update('status', "downloaded " + (10||page_count) + " pages");
+            state.status = "downloaded " + (10||page_count) + " pages";
             $('[href=#download]').attr('class','btn btn-success');
           })
 
