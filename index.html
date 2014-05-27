@@ -163,7 +163,7 @@
           state.status = "fetching page 0/" + page_count;
           var current = 0;
           
-          var requests = requestList(key, username, page_count)
+          var requests = requestList(key, user, page_count)
             // .slice(0,5)
             .map(function(r, i){
               return {
