@@ -42,7 +42,7 @@ function extractTracks(doc){
   // probably nicer ways to do this
   var arr = [];
   var track, obj, child;
-  var tracks = doc.evaluate('lfm/recenttracks/track', doc)
+  var tracks = doc.evaluate('lfm/recenttracks/track', doc, null, XPathResult.ANY_TYPE, null)
   while (track = tracks.iterateNext()){
     obj = {};
     for (var i = track.children.length - 1; i >= 0; i--) {
@@ -56,7 +56,7 @@ function extractTracks(doc){
 }
 
 function extractPageCount(doc){
-  var recenttracks = doc.evaluate('lfm/recenttracks', doc).iterateNext()
+  var recenttracks = doc.evaluate('lfm/recenttracks', doc, null, XPathResult.ANY_TYPE, null).iterateNext()
   return parseInt(recenttracks.getAttribute('totalPages'), 10)
 }
 
