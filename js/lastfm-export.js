@@ -45,8 +45,8 @@ function extractTracks(doc){
   var tracks = doc.evaluate('lfm/recenttracks/track', doc, null, XPathResult.ANY_TYPE, null)
   while (track = tracks.iterateNext()){
     obj = {};
-    for (var i = track.children.length - 1; i >= 0; i--) {
-      child = track.children[i];
+    for (var i = track.childNodes.length - 1; i >= 0; i--) {
+      child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
     };
     arr.push(obj)
