@@ -179,7 +179,11 @@
             lastFM(item.data)
             .then(extractTracks)
             .then(function(tracks){
-              var blb = new Blob([tracks.map(function(d){return row(['artist', 'name', 'date'], d)}).map(csv).join('\n'),'\n']);
+              var blb = new Blob([
+                tracks.map(function(d){
+                  return row(['artist', 'album', 'name', 'date'], d)
+                })
+                .map(csv).join('\n') + '\n']);
               data[item.i] = blb;
               bytes+= blb.size;
               state.kb = Math.round(bytes/1024);
