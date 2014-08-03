@@ -28,7 +28,7 @@ function requestData(api_key, user, page){
 // generate a list of request data objects
 function requestList(api_key, user, page_count){
   var requests = [];
-  for(var page = 0; page < page_count; page++){
+  for(var page = 0; page <= page_count; page++){
     requests.push(requestData(api_key, user, page))
   }
   return requests
