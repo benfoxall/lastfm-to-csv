@@ -160,7 +160,7 @@
         .then(extractPageCount)
         .then(function(page_count){
 
-          state.status = "fetching page 0/" + page_count;
+          state.status = "fetching page 1/" + page_count;
           var current = 0;
           
           var requests = requestList(key, user, page_count)
@@ -175,7 +175,7 @@
           async.eachSeries(requests, function(item, callback){
             if(state.cancelled) return callback(false);
 
-            state.status = "fetching page " + (item.i+1) + "/" + page_count;
+            state.status = "fetching page " + (item.i) + "/" + page_count;
             lastFM(item.data)
             .then(extractTracks)
             .then(function(tracks){
