@@ -4,7 +4,7 @@ importScripts('bower_components/dexie/dist/latest/Dexie.js');
 importScripts('js/ds_lastfm_local.js');
 
 self.addEventListener('fetch', function (event) {
-  var csvMatcher = event.request.url.match(/sw\/(.*).csv$/)
+  var csvMatcher = event.request.url.match(/sw\/tracks\/(.*).csv$/)
   if(csvMatcher){
     event.respondWith(buildCSVResponse(csvMatcher[1]));
   }
@@ -13,6 +13,27 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(
       LocalDb.usernames()
         .then(JSONResponse)
+    )
+  }
+
+  var m = event.request.url.match(/sw\/count\/(.*)$/)
+  if(m){
+    event.respondWith(
+      LocalDb.getTracksFor(m[1])
+        .count()
+        .then(JSONResponse)
+    )
+  }
+
+  var m = event.request.url.match(/sw\/destroy\/(.*)$/)
+  if(m){
+    event.respondWith(
+      LocalDb.getTracksFor(m[1])
+        .delete()
+        .then(function(n){
+          return "deleted " + n + " tracks"
+        })
+        .then(TextResponse)
     )
   }
 });
@@ -37,6 +58,12 @@ if (self.clients && (typeof self.clients.claim === 'function')) {
   });
 } else {
   console.log('self.clients.claim() is not supported.');
+}
+
+function TextResponse(str){
+  return new Response( str, {
+    headers: { 'Content-Type': 'text/plain' }
+  });
 }
 
 function JSONResponse(obj){
