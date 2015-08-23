@@ -97,7 +97,9 @@
     <script src="js/lastfm-export.js"></script>
 
     <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/dexie/dist/latest/Dexie.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="js/ds_lastfm_local.js"></script>
     <script type="text/javascript">
       //hook up the export to the page
 
@@ -178,6 +180,7 @@
             state.status = "fetching page " + (item.i) + "/" + page_count;
             lastFM(item.data)
             .then(extractTracks)
+            .then(LocalDb.saveTracks.bind(undefined, user))
             .then(function(tracks){
               var blb = new Blob([
                 tracks.map(function(d){
@@ -202,7 +205,15 @@
         })
 
       });
-
+  
+    // Register the serviceworker if the browser supports it
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('ServiceWorker registered', registration)
+      }).catch(function(err) {
+        console.log('ServiceWorker registeration failed', err)
+      });
+     }
     </script>
 
   </div>
