@@ -59,8 +59,6 @@ function buildCSVResponse(lastFmUsername){
       );
     })
     .then(function(){
-      console.timeEnd('build summary');
-
       var data = new Blob(rows.map(function(row){
         return csv(row) + '\n';
       }));
