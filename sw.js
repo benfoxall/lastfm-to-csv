@@ -16,26 +16,6 @@ self.addEventListener('fetch', function (event) {
     )
   }
 
-  var m = event.request.url.match(/sw\/count\/(.*)$/)
-  if(m){
-    event.respondWith(
-      LocalDb.getTracksFor(m[1])
-        .count()
-        .then(JSONResponse)
-    )
-  }
-
-  var m = event.request.url.match(/sw\/destroy\/(.*)$/)
-  if(m){
-    event.respondWith(
-      LocalDb.getTracksFor(m[1])
-        .delete()
-        .then(function(n){
-          return "deleted " + n + " tracks"
-        })
-        .then(TextResponse)
-    )
-  }
 });
 
 // Grab control (in case I've got more than one tab open by accident)
@@ -60,11 +40,6 @@ if (self.clients && (typeof self.clients.claim === 'function')) {
   console.log('self.clients.claim() is not supported.');
 }
 
-function TextResponse(str){
-  return new Response( str, {
-    headers: { 'Content-Type': 'text/plain' }
-  });
-}
 
 function JSONResponse(obj){
   return new Response( JSON.stringify(obj), {
