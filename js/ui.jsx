@@ -5,13 +5,13 @@ var Users = React.createClass({
     return {users:[]}
   },
   componentDidMount: function(){
-    fetch('sw/users')
-      .then(function(res){ return res.json() })
+    this.props.store.usernames()
       .then(function(users){
         this.setState({users:users})
       }.bind(this))
   },
   render: function(){
+    var store = this.props.store;
     return <div>
       <hr />
       <h2>
@@ -22,7 +22,7 @@ var Users = React.createClass({
       </p>
       <hr />
       {this.state.users.map(function(user){
-        return <User username={user} />
+        return <User username={user} store={store} />
       })}
     </div>
   }
@@ -34,14 +34,15 @@ var User = React.createClass({
     return {count:0}
   },
   componentDidMount: function(){
-    fetch('sw/count/' + this.props.username)
-      .then(function(res){ return res.json() })
+    this.props.store.getTracksFor(this.props.username)
+      .count()
       .then(function(count){
         this.setState({count:count})
       }.bind(this))
   },
   _destroy: function(){
-    fetch('sw/destroy/' + this.props.username)
+    this.props.store.getTracksFor(this.props.username)
+      .delete()
       .then(function(){
         this.setState({destroyed:true})
       }.bind(this))

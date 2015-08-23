@@ -227,7 +227,7 @@
     <script src="js/ui.js"></script>
     <script>
     React.render(
-      React.createElement(Users, null),
+      React.createElement(Users, {store: LocalDb}),
       document.getElementById('content')
     );
     </script>
