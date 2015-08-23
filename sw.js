@@ -1,7 +1,7 @@
 "use strict";
 
-importScripts('bower_components/dexie/dist/latest/Dexie.js'); 
-importScripts('js/ds_lastfm_local.js'); 
+importScripts('bower_components/dexie/dist/latest/Dexie.js');
+importScripts('js/ds_lastfm_local.js');
 
 self.addEventListener('fetch', function (event) {
   var csvMatcher = event.request.url.match(/sw\/(.*).csv$/)
