@@ -35,7 +35,7 @@ if (self.clients && (typeof self.clients.claim === 'function')) {
 
 function buildCSVResponse(lastFmUsername){
 
-  var keys = ['album', 'artist', 'date'];
+  var keys = ['artist', 'album', 'name', 'date'];
   var rows = [keys];
 
   return LocalDb.getTracksFor(lastFmUsername)
