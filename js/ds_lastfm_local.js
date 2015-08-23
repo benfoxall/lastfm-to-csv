@@ -38,7 +38,8 @@ var LocalDb = (function() {
   return {
     getTracksFor: getTracksFor,
     saveTracks: saveTracks,
-    usernames: usernames
+    usernames: usernames,
+    db: db
   }
 
 })();
