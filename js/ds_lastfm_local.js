@@ -27,7 +27,7 @@ var LocalDb = (function() {
       .where('username').equalsIgnoreCase(lastFmUsername)
   }
 
-  function usernames (lastFmUsername) {
+  function usernames () {
     return db
       .tracks
       .orderBy('username')
