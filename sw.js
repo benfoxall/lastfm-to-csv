@@ -1,10 +1,13 @@
+"use strict";
+
 importScripts('bower_components/dexie/dist/latest/Dexie.js'); 
-importScripts('js/ting.js'); 
-self.addEventListener('fetch',function (event) {
-	console.log(event);
-	if(event.request.url.match(/sw\/summary.csv$/)){
-		event.respondWith(summaryResponse());
-	}
+importScripts('js/ds_lastfm_local.js'); 
+
+self.addEventListener('fetch', function (event) {
+  var csvMatcher = event.request.url.match(/sw\/(.*).csv$/)
+  if(csvMatcher){
+    event.respondWith(buildCSVResponse(csvMatcher[1]));
+  }
 });
 
 // Grab control (in case I've got more than one tab open by accident)
@@ -30,18 +33,16 @@ if (self.clients && (typeof self.clients.claim === 'function')) {
 }
 
 
-function summaryResponse(){
-  console.time('build summary')
+function buildCSVResponse(lastFmUsername){
 
   var keys = ['album', 'artist', 'date'];
   var rows = [keys];
 
-  return db
-    .tracks
+  return LocalDb.getTracksFor(lastFmUsername)
     .each(function(track){
       rows.push(
         row(keys, track)
-      )
+      );
     })
     .then(function(){
       console.timeEnd('build summary');
@@ -52,17 +53,14 @@ function summaryResponse(){
       return new Response( data, {
         headers: { 'Content-Type': 'text/csv' }
       });
-    })
-
+    });
 }
 
-// pull out a row of keys
-function row(keys, obj){
-  return keys.map(function(k){
-    return obj[k]
-  })
-}
-// create a csv row from an array
+
+//
+// CSV builder
+//
+
 function csv(array){
 
   // this is not a world class csv generator
@@ -73,5 +71,9 @@ function csv(array){
   }).join(',')
 }
 
-
-console.log('loaded');
+// create a csv row from an array
+function row(keys, obj){
+  return keys.map(function(k){
+    return obj[k]
+  })
+}
