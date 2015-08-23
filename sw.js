@@ -8,6 +8,13 @@ self.addEventListener('fetch', function (event) {
   if(csvMatcher){
     event.respondWith(buildCSVResponse(csvMatcher[1]));
   }
+
+  if(event.request.url.match(/sw\/users$/)){
+    event.respondWith(
+      LocalDb.usernames()
+        .then(JSONResponse)
+    )
+  }
 });
 
 // Grab control (in case I've got more than one tab open by accident)
@@ -32,6 +39,11 @@ if (self.clients && (typeof self.clients.claim === 'function')) {
   console.log('self.clients.claim() is not supported.');
 }
 
+function JSONResponse(obj){
+  return new Response( JSON.stringify(obj), {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
 
 function buildCSVResponse(lastFmUsername){
 

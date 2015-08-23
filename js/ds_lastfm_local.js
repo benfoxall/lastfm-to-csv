@@ -27,10 +27,18 @@ var LocalDb = (function() {
       .where('username').equalsIgnoreCase(lastFmUsername)
   }
 
+  function usernames (lastFmUsername) {
+    return db
+      .tracks
+      .orderBy('username')
+      .uniqueKeys()
+  }
+
   // export our API to window.
   return {
     getTracksFor: getTracksFor,
-    saveTracks: saveTracks
+    saveTracks: saveTracks,
+    usernames: usernames
   }
 
 })();
