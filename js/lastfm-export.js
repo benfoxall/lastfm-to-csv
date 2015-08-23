@@ -2,7 +2,7 @@
 // make a request to lastFM
 function lastFM(data, callback){
   return reqwest({
-    url:"http://ws.audioscrobbler.com/2.0/",
+    url:"https://ws.audioscrobbler.com/2.0/",
     data: data,
     type: 'xml',
     success: function(data){
@@ -70,7 +70,7 @@ function csv(array){
 
   // this is not a world class csv generator
   return array.map(function(item){
-    return  typeof(item) === 'string' ? 
+    return  typeof(item) === 'string' ?
       item.replace(/[\",]/g,'') :
       item;
   }).join(',')

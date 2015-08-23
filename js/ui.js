@@ -5,7 +5,7 @@ var Users = React.createClass({displayName: "Users",
     return {users:[]}
   },
   componentDidMount: function(){
-    fetch('/sw/users')
+    fetch('sw/users')
       .then(function(res){ return res.json() })
       .then(function(users){
         this.setState({users:users})
@@ -34,14 +34,14 @@ var User = React.createClass({displayName: "User",
     return {count:0}
   },
   componentDidMount: function(){
-    fetch('/sw/count/' + this.props.username)
+    fetch('sw/count/' + this.props.username)
       .then(function(res){ return res.json() })
       .then(function(count){
         this.setState({count:count})
       }.bind(this))
   },
   _destroy: function(){
-    fetch('/sw/destroy/' + this.props.username)
+    fetch('sw/destroy/' + this.props.username)
       .then(function(){
         this.setState({destroyed:true})
       }.bind(this))
