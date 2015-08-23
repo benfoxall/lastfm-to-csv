@@ -12,7 +12,7 @@
 
     <div class="page-header">
       <h1>
-        Last.fm to csv 
+        Last.fm to csv
         <small>
           <a href="#settings" data-toggle="modal" data-target="#settings">
             <span class="glyphicon glyphicon-cog"></span>
@@ -46,14 +46,15 @@
       </p>
       <p>
         <a class="btn" href="#download" rv-class-btn-success="complete" rv-class-btn-info="incomplete < complete">
-          Save 
+          Save
           <small>{ kb }kb</small>
         </a>
         <a href="#cancel" rv-show="incomplete < complete">cancel</a>
         <span class="help-block">a partial file can be saved while fetching more data</span>
       </p>
     </section>
-  
+
+    <section id="content"></section>
 
     <!-- settings modal -->
 
@@ -100,6 +101,7 @@
     <script src="bower_components/dexie/dist/latest/Dexie.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="js/ds_lastfm_local.js"></script>
+
     <script type="text/javascript">
       //hook up the export to the page
 
@@ -164,7 +166,7 @@
 
           state.status = "fetching page 1/" + page_count;
           var current = 0;
-          
+
           var requests = requestList(key, user, page_count)
             // .slice(0,5)
             .map(function(r, i){
@@ -205,7 +207,7 @@
         })
 
       });
-  
+
     // Register the serviceworker if the browser supports it
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -216,6 +218,15 @@
      }
     </script>
 
+
+    <script src="bower_components/react/react.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+    React.render(
+      React.createElement(Users, null),
+      document.getElementById('content')
+    );
+    </script>
   </div>
 </body>
 </html>
