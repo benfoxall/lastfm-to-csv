@@ -97,6 +97,16 @@ function extractPageCount(doc){
   return parseInt(recenttracks.getAttribute('totalPages'), 10)
 }
 
+function extractUser(doc){
+  var recenttracks = doc.evaluate('lfm/recenttracks', doc, null, XPathResult.ANY_TYPE, null).iterateNext()
+  return recenttracks.getAttribute('user')
+}
+
+function extractFirstTrackTime(doc){
+  var date = doc.evaluate('lfm/recenttracks/track/date', doc, null, XPathResult.ANY_TYPE, null).iterateNext()
+  return parseInt(date.getAttribute('uts'), 10)
+}
+
 // pull out a row of keys
 function row(keys, obj){
   return keys.map(function(k){
