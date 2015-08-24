@@ -60,14 +60,13 @@ var User = React.createClass({
     if(this.state.destroyed) return <div> x - {this.props.username}</div>;
 
     var name = this.props.user.name + '.csv'
-    var url = 'v2.html/sw/tracks/' + name;
+    var url = 'sw/tracks/' + name;
     return <div>
       <hr />
       <h1>
-        <a onClick={this._destroy} className="btn btn-danger">
+        <a onClick={this._destroy} className="btn btn-danger btn-sm">
           x
-        </a>
-        {this.props.user.name} <small>
+        </a> {this.props.user.name} <small>
         {this.props.user.counts.SUCCESS}/
         {this.props.user.counts.READY + this.props.user.counts.SUCCESS}
         </small>

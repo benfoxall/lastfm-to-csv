@@ -60,14 +60,13 @@ var User = React.createClass({displayName: "User",
     if(this.state.destroyed) return React.createElement("div", null, " x - ", this.props.username);
 
     var name = this.props.user.name + '.csv'
-    var url = 'v2.html/sw/tracks/' + name;
+    var url = 'sw/tracks/' + name;
     return React.createElement("div", null, 
       React.createElement("hr", null), 
       React.createElement("h1", null, 
-        React.createElement("a", {onClick: this._destroy, className: "btn btn-danger"}, 
+        React.createElement("a", {onClick: this._destroy, className: "btn btn-danger btn-sm"}, 
           "x"
-        ), 
-        this.props.user.name, " ", React.createElement("small", null, 
+        ), " ", this.props.user.name, " ", React.createElement("small", null, 
         this.props.user.counts.SUCCESS, "/", 
         this.props.user.counts.READY + this.props.user.counts.SUCCESS
         )

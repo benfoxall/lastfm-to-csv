@@ -7,6 +7,14 @@
   <script>
     // we need https for service workers
     if ((!location.port || location.port == "80") && location.protocol != 'https:') location.protocol = 'https:';
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(function(registration) {
+        console.log('ServiceWorker registered', registration)
+      }).catch(function(err) {
+        console.log('ServiceWorker registeration failed', err)
+      });
+     }
   </script>
 </head>
 <body>
@@ -26,39 +34,14 @@
     </div>
     <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p>
 
-    <div class="alert alert-warning" style="display:none" rv-show="user_error">Couldn't find user</div>
-
     <form class="form-inline">
-      <div class="form-group" rv-class-has-error="user_error">
-        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required rv-disabled="submitted">
+      <div class="form-group">
+        <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required>
       </div>
-      <button type="submit" class="btn btn-primary btn-lg"  rv-disabled="submitted">Fetch tracks</button>
+      <button type="submit" class="btn btn-primary btn-lg">Add User</button>
     </form>
 
-    <section id="results" rv-show="submitted" style="display:none">
-      <h1>{ status }</h1>
-      <!--p>
-        <span class="label label-warning">
-          retries: <span data-bind="retries">-</span>
-        </span>
-        &nbsp;
-      -->
-      <p>
-        <span class="label label-danger" rv-show="errors">
-          errors: <span data-bind="errors">{ errors }</span>
-        </span>
-      </p>
-      <p>
-        <a class="btn" href="#download" rv-class-btn-success="complete" rv-class-btn-info="incomplete < complete">
-          Save
-          <small>{ kb }kb</small>
-        </a>
-        <a href="#cancel" rv-show="incomplete < complete">cancel</a>
-        <span class="help-block">a partial file can be saved while fetching more data</span>
-      </p>
-    </section>
-
-    <section id="content"></section>
+    <div id="content"></div>
 
     <!-- settings modal -->
 
@@ -77,183 +60,50 @@
               <label for="api-key">
                 alternate api key
               </label>
-              <input type="text" class="form-control input-md" id="api-key" placeholder="0123456789abcdef0123456789abcdef" rv-value="api_key">
+              <input type="text" class="form-control input-md" id="api-key" placeholder="0123456789abcdef0123456789abcdef">
               <p class="help-block">Use an alternative api key - generate one at <a href="http://www.last.fm/api">last.fm/api</a></p>
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="request-delay">
                 request delay
               </label>
-              <input type="text" class="form-control input-md" id="request-delay" placeholder="0"  rv-value="request_delay">
+              <input type="text" class="form-control input-md" id="request-delay" placeholder="0">
               <p class="help-block">(milliseconds, default 0) how long to wait between making requests</p>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
     </div>
 
 
-
-    <script src="bower_components/reqwest/reqwest.js"></script>
-    <script src="bower_components/FileSaver/FileSaver.js"></script>
     <script src="bower_components/async/lib/async.js"></script>
-    <script src="bower_components/comma-separated-values/csv.js"></script>
-    <script src="bower_components/rivets/dist/rivets.js"></script>
-    <script src="js/lastfm-export.js"></script>
-
-    <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/dexie/dist/latest/Dexie.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/reqwest/reqwest.js"></script>
     <script src="js/ds_lastfm_local.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/react/react.js"></script>
+    <script src="js/ui.js"></script>
 
-    <script type="text/javascript">
-      //hook up the export to the page
-
-      // the state of the page
-      var state = {
-        status:     '-',
-        kb:         0,
-        submitted:  false,
-        user_error: false,
-        complete:   false,
-        errors: 0,
-
-        // settings
-        api_key:'',
-        request_delay:'',
-
-        cancelled: false,
-
-
-        incomplete: function(){
-          return !this.complete
-        }
-      };
-
-      rivets.bind(document, state)
-
-
-      var data = [], bytes = 0;
-
-      $('[href=#download]').on('click', function(e){
-        e.preventDefault();
-        var b = new Blob(data, {type: 'text/csv'})
-        saveAs(b, ($('[name=lastfm-user]').val()||"lastFM") + '.csv')
-      })
-
-      $('[href=#cancel]').on('click', function(e){
-        e.preventDefault();
-        state.cancelled = true;
-      })
-
+    <script src="js/v2.js"></script>
+    <script>
+      // hook up the ui
       $('form').on('submit', function(e){
         e.preventDefault();
 
-        state.submitted = true;
-        state.user_error = false;
-        state.errors = 0;
-
-        // the data that will be filled with csv
-        data = [];
-
-        var delay = $('request-delay').val() || 0,
-            key   = $('api-key').val() || '974a5ebc077564f72bd639d122479d4b',
+        var key   = $('api-key').val() || '974a5ebc077564f72bd639d122479d4b',
             user  = $('[name=lastfm-user]').val();
 
-        // new style (just populate user)
-        Promise.all([
-          lastFM(requestUser(key, user))
-            .then(normaliseUser),
-          lastFM(requestData(key, user))
-        ]).then(function(responses){
-          var _user = responses[0],
-              _doc  = responses[1];
+        window.API_KEY = key;
 
-          _user._last  = extractFirstTrackTime(_doc);
-          _user._pages = extractPageCount(_doc);
-          _user._page  = 0;
-
-          return _user;
-        })
-        .then(LocalDb.saveUser)
-        .then(function(){
-          console.log("saved user");
-        });
-
-        return;
-
-
-        lastFM(requestData(key, user))
-        .fail(function (err, msg) {
-          state.submitted = false;
-          state.user_error = true;
-        })
-        .then(extractPageCount)
-        .then(function(page_count){
-
-          state.status = "fetching page 1/" + page_count;
-          var current = 0;
-
-          var requests = requestList(key, user, page_count)
-            // .slice(0,5)
-            .map(function(r, i){
-              return {
-                data:r,
-                i:i
-              }
-            })
-
-          async.eachSeries(requests, function(item, callback){
-            if(state.cancelled) return callback(false);
-
-            state.status = "fetching page " + (item.i) + "/" + page_count;
-            lastFM(item.data)
-            .then(extractTracks)
-            .then(LocalDb.saveTracks.bind(undefined, user))
-            .then(function(tracks){
-              var blb = new Blob([
-                tracks.map(function(d){
-                  return row(['artist', 'album', 'name', 'date'], d)
-                })
-                .map(csv).join('\n') + '\n']);
-              data[item.i] = blb;
-              bytes+= blb.size;
-              state.kb = Math.round(bytes/1024);
-            })
-            .fail(function(){
-              state.errors++;
-            })
-            .always(function(){
-              setTimeout(callback, parseInt(state.request_delay || '0', 10), false);
-            })
-          }, function(){
-            state.status = "finished";
-            state.complete = true;
-          })
-
-        })
+        add(user);
 
       });
-
-    // Register the serviceworker if the browser supports it
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(function(registration) {
-        console.log('ServiceWorker registered', registration)
-      }).catch(function(err) {
-        console.log('ServiceWorker registeration failed', err)
-      });
-     }
     </script>
 
 
-    <script src="bower_components/react/react.js"></script>
-    <script src="js/ui.js"></script>
-    <script>
-    React.render(
-      React.createElement(Users, {store: LocalDb}),
-      document.getElementById('content')
-    );
-    </script>
+
+
   </div>
 </body>
 </html>
