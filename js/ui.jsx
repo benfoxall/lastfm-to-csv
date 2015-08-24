@@ -47,7 +47,7 @@ var User = React.createClass({
     if(this.state.destroyed) return <div> x - {this.props.username}</div>;
 
     var name = this.props.user.name + '.csv'
-    var url = 'sw/tracks/' + name;
+    var url = 'v2.html/sw/tracks/' + name;
     return <div>
       <hr />
       <h1>

@@ -1,11 +1,17 @@
-"use strict";
+var STATE = {
+  READY:     1,
+  // REQUESTED: 2, // not really used
+  FAILED:    3,
+  SUCCESS:   4
+};
 
 importScripts('bower_components/dexie/dist/latest/Dexie.js');
 importScripts('js/ds_lastfm_local.js');
 
 self.addEventListener('fetch', function (event) {
-  var csvMatcher = event.request.url.match(/sw\/tracks\/(.*).csv$/)
+  var csvMatcher = event.request.url.match(/sw\/tracks\/(.*)\.csv$/)
   if(csvMatcher){
+    console.log("MATCH")
     event.respondWith(buildCSVResponse(csvMatcher[1]));
   }
 
@@ -47,27 +53,43 @@ function JSONResponse(obj){
   });
 }
 
+var quoteRegex = /[\",]/g;
+
 function buildCSVResponse(lastFmUsername){
 
-  var keys = ['artist', 'album', 'name', 'date'];
-  var rows = [keys];
+  console.time("generate csv")
 
-  return LocalDb.getTracksFor(lastFmUsername)
-    .each(function(track){
+  var keys = ['artist', 'album', 'name', 'date'];
+  var rows = [csv(keys) + '\n'];
+  var str = csv(keys) + '\n'
+
+  return LocalDb.requests()
+    .where('[user+state]').equals([lastFmUsername, STATE.SUCCESS])
+    .each(function(req){
       rows.push(
-        row(keys, track)
-      );
+        req.response.map(function(t){
+          return csv(row(keys, t)) + '\n'
+        }).join('').replace(quoteRegex,'')
+      )
     })
     .then(function(){
-      var data = new Blob(rows.map(function(row){
-        return csv(row) + '\n';
-      }));
+      var data = new Blob(rows);
+      console.timeEnd("generate csv")
       return new Response( data, {
         headers: { 'Content-Type': 'text/csv' }
       });
     });
 }
 
+// 930 docs
+//
+// nothing at all - 2533.488ms
+// straight string  -  7123.787ms
+// array of strings - 7587.591ms
+// array of bigger strings -  5898.709ms
+// array of blobs per response  - 8572.458ms
+// no blob (straigh text response) - 6401.046ms
+// ..turns out the big sink was the csv regex
 
 //
 // CSV builder
@@ -75,12 +97,15 @@ function buildCSVResponse(lastFmUsername){
 
 function csv(array){
 
+    // this is *definitely* not a world class csv generator
+  return array.join(',');
+
   // this is not a world class csv generator
-  return array.map(function(item){
-    return  typeof(item) === 'string' ?
-      item.replace(/[\",]/g,'') :
-      item;
-  }).join(',')
+  // return array.map(function(item){
+  //   return  typeof(item) === 'string' ?
+  //     item.replace(/[\",]/g,'') :
+  //     item;
+  // }).join(',')
 }
 
 // create a csv row from an array
