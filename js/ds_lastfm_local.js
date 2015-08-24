@@ -7,8 +7,34 @@ var LocalDb = (function() {
   });
 
   var db = new Dexie("lastFM");
-  db.version(1).stores({ tracks: "timePlayed, username" });
+  db.version(1).stores({
+    tracks: "timePlayed, username"
+  });
+  db.version(2).stores({
+    users: "name, _page, _pages, _last",
+
+    // responses from the api
+    responses: "[name+to], name, to",
+
+    // requestQueue: "++,name"
+
+    // note: timePlayed can clash (even with single user)
+    tracks: "timePlayed, username"
+  });
+
   db.open();
+
+  function saveUser(user) {
+    return db.users.put(user);
+  }
+
+  function updateUser(name, data) {
+    return db.users.update(name, data);
+  }
+
+  function saveResponse(response) {
+    return db.responses.put(response);
+  }
 
   function saveTracks (user, tracks) {
     tracks.forEach(function (track) {
@@ -27,18 +53,21 @@ var LocalDb = (function() {
       .where('username').equals(lastFmUsername)
   }
 
-  function usernames () {
+  function users () {
     return db
-      .tracks
-      .orderBy('username')
-      .uniqueKeys()
+      .users
+      .orderBy('name')
+      .toArray()
   }
 
   // export our API to window.
   return {
+    saveUser: saveUser,
     getTracksFor: getTracksFor,
     saveTracks: saveTracks,
-    usernames: usernames,
+    users: users,
+    saveResponse: saveResponse,
+    updateUser: updateUser,
     db: db
   }
 
