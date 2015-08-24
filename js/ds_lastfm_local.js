@@ -21,54 +21,40 @@ var LocalDb = (function() {
     // note: timePlayed can clash (even with single user)
     tracks: "timePlayed, username"
   });
+  db.version(3).stores({
+    /*
+      {
+        priority: int,
+        state: int,
+        user: string,
+        request: {parameters},
+        response: {response_data},
+      }
+    */
+    requests:  '++, priority, state, user, [user+state]'
+  });
 
   db.open();
 
-  function saveUser(user) {
-    return db.users.put(user);
+  function saveRequest(request){
+    return db.requests.put(request)
   }
 
-  function updateUser(name, data) {
-    return db.users.update(name, data);
+  function requestsFor(user){
+    return db.requests
+      .where('user').equals(user)
   }
 
-  function saveResponse(response) {
-    return db.responses.put(response);
-  }
-
-  function saveTracks (user, tracks) {
-    tracks.forEach(function (track) {
-      track.username = user;
-      track.timePlayed = new Date(track.date).getTime();
-      db.tracks.add(track);
-    });
-
-    return tracks;
-  }
-
-  function getTracksFor (lastFmUsername) {
-    console.log(lastFmUsername)
-    return db
-      .tracks
-      .where('username').equals(lastFmUsername)
-  }
-
-  function users () {
-    return db
-      .users
-      .orderBy('name')
-      .toArray()
+  // for hacks
+  function requests(){
+    return db.requests
   }
 
   // export our API to window.
   return {
-    saveUser: saveUser,
-    getTracksFor: getTracksFor,
-    saveTracks: saveTracks,
-    users: users,
-    saveResponse: saveResponse,
-    updateUser: updateUser,
-    db: db
+    saveRequest: saveRequest,
+    requestsFor: requestsFor,
+    requests: requests
   }
 
 })();
