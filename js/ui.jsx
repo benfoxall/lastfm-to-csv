@@ -15,10 +15,10 @@ var Users = React.createClass({
     return <div>
       <hr />
       <h2>
-        Service Worker <small>(experimental)</small>
+        Stored data
       </h2>
       <p>
-        This serves any past service worker
+        (experimental, requires Service Worker support)
       </p>
       <hr />
       {this.state.users.map(function(user){
