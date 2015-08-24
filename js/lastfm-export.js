@@ -4,7 +4,7 @@ function lastFM(data, callback){
   return reqwest({
     url:"https://ws.audioscrobbler.com/2.0/",
     data: data,
-    type: 'xml',
+    type: data.format || 'xml',
     success: function(data){
       if(callback){callback(false, data)}
     },
