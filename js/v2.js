@@ -26,7 +26,6 @@ var requestQueue = async.priorityQueue(function (id, callback) {
         state: STATE.FAILED,
       })
     })
-    .then(UI)
     .then(callback);
 
 }, 2)
@@ -84,18 +83,6 @@ function enqueue(){
 
 // enqueue();
 
-function UI(){
-
-  return Promise.all(Object.keys(STATE).map(function(key){
-    return LocalDb.requests()
-      .where('state').equals(STATE[key])
-      .count(function (count) {
-        console.log(key, count)
-        document.getElementById('ui-' + key).textContent = count
-      });
-    })
-  )
-}
 
 function extractPageCount(doc){
   var recenttracks = doc.evaluate('lfm/recenttracks', doc, null, XPathResult.ANY_TYPE, null).iterateNext()
@@ -167,9 +154,9 @@ function add(user){
               request: r
               // response
             })
-            .then(function(id){
-              // requestQueue.push(id, r.page)
-            });
+            // .then(function(id){
+            //   requestQueue.push(id, r.page)
+            // });
           })
         )
       })
@@ -178,5 +165,50 @@ function add(user){
 
     console.log("queued")
     // remove any requests and responses for that user
+    setTimeout(reloadUI,100)
   })
 }
+
+
+
+
+// This is a stupid function
+function ui(){
+  return LocalDb.requests()
+    .orderBy('user')
+    .uniqueKeys(function(users){
+      return Promise.all(
+        users.map(function(user){
+          return Promise.all(Object.keys(STATE).map(function(state){
+            return LocalDb.requests()
+            .where('[user+state]').equals([user, STATE[state]])
+            .count()
+          })).then(function(counts){
+            return {
+              name: user,
+              counts: Object.keys(STATE).reduce(function(memo, d, i){
+                memo[d] = counts[i]
+                return memo;
+              },{})
+            }
+          })
+        })
+      )
+    })
+}
+
+// h a c k y
+var reloadUI = function(){
+  if(reloadUI.l) reloadUI.l()
+}
+reloadUI.on = function(l){
+  reloadUI.l = l;
+}
+
+function renderUI(){
+  React.render(
+    React.createElement(Users, {store: LocalDb, ui: ui, reload: reloadUI.on}),
+    document.getElementById('content')
+  );
+}
+renderUI()
