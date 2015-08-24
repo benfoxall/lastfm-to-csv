@@ -160,6 +160,29 @@
             key   = $('api-key').val() || '974a5ebc077564f72bd639d122479d4b',
             user  = $('[name=lastfm-user]').val();
 
+        // new style (just populate user)
+        Promise.all([
+          lastFM(requestUser(key, user))
+            .then(normaliseUser),
+          lastFM(requestData(key, user))
+        ]).then(function(responses){
+          var _user = responses[0],
+              _doc  = responses[1];
+
+          _user._last  = extractFirstTrackTime(_doc);
+          _user._pages = extractPageCount(_doc);
+          _user._page  = 0;
+
+          return _user;
+        })
+        .then(LocalDb.saveUser)
+        .then(function(){
+          console.log("saved user");
+        });
+
+        return;
+
+
         lastFM(requestData(key, user))
         .fail(function (err, msg) {
           state.submitted = false;

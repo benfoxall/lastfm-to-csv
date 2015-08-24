@@ -53,21 +53,22 @@ function normaliseWeeks(data){
 }
 
 // generate data for a request
-function requestData(api_key, user, page){
+function requestData(api_key, user, page, to){
   return {
     method:'user.getrecenttracks',
     user:user,
     api_key:api_key,
     limit:200,
-    page: page || 1
+    page: page || 1,
+    to: to
   }
 }
 
 // generate a list of request data objects
-function requestList(api_key, user, page_count){
+function requestList(api_key, user, page_count, to, pageStart){
   var requests = [];
-  for(var page = 1; page <= page_count; page++){
-    requests.push(requestData(api_key, user, page))
+  for(var page = pageStart || 1; page <= page_count; page++){
+    requests.push(requestData(api_key, user, page, to))
   }
   return requests
 }
