@@ -14,6 +14,44 @@ function lastFM(data, callback){
   })
 }
 
+function requestUser(api_key, user){
+  return {
+    method:'user.getInfo',
+    user: user,
+    api_key: api_key,
+    format: 'json'
+  }
+}
+
+function normaliseUser(data){
+  console.log(data);
+  return data.user
+}
+
+
+// Weeks look like they might be pretty
+// useless
+function requestWeeks(api_key, user){
+  return {
+    method:'user.getweeklychartlist',
+    user: user,
+    api_key: api_key,
+    format: 'json'
+  }
+}
+
+function normaliseWeeks(data){
+  return {
+    name: data.weeklychartlist['@attr'].user,
+    weeks: data.weeklychartlist.chart.map(function(chart){
+      return {
+        from: chart.from,
+        to:   chart.to
+      }
+    })
+  };
+}
+
 // generate data for a request
 function requestData(api_key, user, page){
   return {
