@@ -28,7 +28,9 @@ var requestQueue = async.priorityQueue(function (id, callback) {
     })
     .then(callback);
 
-}, 2)
+}, 2);
+
+requestQueue.pause();
 
 // this will be removed when we kill the list
 requestQueue.drain = function() {
@@ -80,8 +82,7 @@ function enqueue(){
       requestQueue.push(id,priority);
     })
 }
-
-// enqueue();
+enqueue();
 
 
 function extractPageCount(doc){
@@ -154,18 +155,15 @@ function add(user){
               request: r
               // response
             })
-            // .then(function(id){
-            //   requestQueue.push(id, r.page)
-            // });
+            .then(function(id){
+              requestQueue.push(id, r.page)
+            });
           })
         )
       })
   })
   .then(function(requests){
-
     console.log("queued")
-    // remove any requests and responses for that user
-    setTimeout(reloadUI,100)
   })
 }
 
@@ -199,7 +197,7 @@ function ui(){
 
 // h a c k y
 var reloadUI = function(){
-  if(reloadUI.l) reloadUI.l()
+  if(reloadUI.l) return reloadUI.l()
 }
 reloadUI.on = function(l){
   reloadUI.l = l;
@@ -207,8 +205,29 @@ reloadUI.on = function(l){
 
 function renderUI(){
   React.render(
-    React.createElement(Users, {store: LocalDb, ui: ui, reload: reloadUI.on}),
+    React.createElement(Users, {store: LocalDb, ui: ui, reload: reloadUI.on, queue: requestQueue}),
     document.getElementById('content')
   );
 }
 renderUI()
+
+
+
+function render() {
+  if(requestQueue.paused){
+    return setTimeout(function(){
+      requestAnimationFrame(render);
+    }, 1000)
+  }
+  else {
+    reloadUI()
+      .then(function(){
+        setTimeout(function(){
+          requestAnimationFrame(render);
+        }, 1000)
+      })
+  }
+
+}
+
+render()

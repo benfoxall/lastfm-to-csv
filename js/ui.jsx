@@ -8,7 +8,7 @@ var Users = React.createClass({
     var ui = this.props.ui;
 
     var load = (function(){
-      ui()
+      return ui()
         .then(function(state){
           this.setState({users:state})
         }.bind(this))
@@ -17,8 +17,15 @@ var Users = React.createClass({
 
 
     this.props.reload(function(){
-      load();
+      return load();
     }.bind(this))
+  },
+  _pause: function(){
+    if(this.props.queue.paused){
+      this.props.queue.resume()
+    } else {
+      this.props.queue.pause()
+    }
   },
   render: function(){
     var store = this.props.store;
@@ -26,6 +33,11 @@ var Users = React.createClass({
       {this.state.users.map(function(user){
         return <User user={user} key={user.name} store={store} />
       })}
+      <hr />
+
+      <button onClick={this._pause} className="btn btn-info">
+        {this.props.queue.paused ? 'download': 'pause'}
+      </button>
     </div>
   }
 })
@@ -40,6 +52,7 @@ var User = React.createClass({
       .delete()
       .then(function(){
         this.setState({destroyed:true})
+        enqueue()
       }.bind(this))
   },
   render: function(){
