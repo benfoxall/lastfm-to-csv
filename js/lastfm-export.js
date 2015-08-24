@@ -45,7 +45,8 @@ function extractTracks(doc){
     obj = {};
     for (var i = track.childNodes.length - 1; i >= 0; i--) {
       child = track.childNodes[i];
-      obj[child.tagName] = child.textContent;
+      if(child.tagName)
+        obj[child.tagName] = child.textContent;
     };
     arr.push(obj)
   }
