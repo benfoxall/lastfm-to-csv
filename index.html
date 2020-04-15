@@ -31,6 +31,13 @@
     <form class="form-inline">
       <div class="form-group" rv-class-has-error="user_error">
         <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required rv-disabled="submitted">
+        <select class="form-control input-lg" title="Scegli una opzione" rv-disabled="submitted" placeholder="select time interval">
+          <option value="lasthour">Last Hour</option>
+          <option value="lastday">Last Day</option>
+          <option value="lastmonth">Last Month</option>
+          <option value="last3month">Last 3 Month</option>
+          <option value="lastyear">Last Year</option>
+        </select>
       </div>
       <button type="submit" class="btn btn-primary btn-lg"  rv-disabled="submitted">Fetch tracks</button>
     </form>
@@ -185,6 +192,7 @@
             .then(function(tracks){
               var blb = new Blob([
                 tracks.map(function(d){
+                  console.log(d.date);
                   return row(['artist', 'album', 'name', 'date'], d)
                 })
                 .map(csv).join('\n') + '\n']);
