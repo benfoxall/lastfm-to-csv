@@ -47,9 +47,10 @@ function extractTracks(doc,from){
       child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
     };
-    console.log(Date.parse(obj.date));
     if (Date.parse(obj.date)>=from.getTime())
       arr.push(obj)
+    else 
+      return arr;
   }
   return arr;
 }
