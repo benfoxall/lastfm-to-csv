@@ -31,11 +31,11 @@ function requestList(api_key, user, page_count){
   for(var page = 1; page <= page_count; page++){
     requests.push(requestData(api_key, user, page))
   }
-  return requests
+  return requests;
 }
 
 // extract the data from the xml response
-function extractTracks(doc){
+function extractTracks(doc,from){
 
   // probably nicer ways to do this
   var arr = [];
@@ -47,9 +47,10 @@ function extractTracks(doc){
       child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
     };
-    arr.push(obj)
+    console.log(Date.parse(obj.date));
+    if (Date.parse(obj.date)>=from.getTime())
+      arr.push(obj)
   }
-
   return arr;
 }
 
