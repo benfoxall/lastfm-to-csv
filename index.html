@@ -36,6 +36,11 @@
       <br />
       <div class="form-group">
         <input type="checkbox" class="form-control input-lg" name="lastfm-include-mbid" id="lastfm-include-mbid" checked>
+        <label for="lastfm-include-mbid">Include column headers</label>
+      </div>
+      <br />
+      <div class="form-group">
+        <input type="checkbox" class="form-control input-lg" name="lastfm-include-mbid" id="lastfm-include-headers" checked>
         <label for="lastfm-include-mbid">Include MusicBrainz ID</label>
       </div>
     </form>
@@ -181,7 +186,13 @@
               }
             })
 
+          var headers = ['artist', 'album', 'name', 'date'];
           var includeMBID = $('#lastfm-include-mbid').prop('checked');
+          var includeHeaders = $('#lastfm-include-headers').prop('checked');
+
+          if(includeMBID) {
+            headers.push('mbid', 'artist_mbid', 'album_mbid');
+          }
 
           async.eachSeries(requests, function(item, callback){
             if(state.cancelled) return callback(false);
@@ -190,14 +201,18 @@
             lastFM(item.data)
             .then(extractTracks)
             .then(function(tracks){
+              var r = tracks.map(function(d){
+                if(includeMBID) {
+                  return row(headers, d)
+                }
+                return row(headers, d)
+              })
+              .map(csv).join('\n') + '\n';
+
               var blb = new Blob([
-                tracks.map(function(d){
-                  if(includeMBID) {
-                    return row(['artist', 'album', 'name', 'date', 'mbid', 'artist_mbid'], d)
-                  }
-                  return row(['artist', 'album', 'name', 'date'], d)
-                })
-                .map(csv).join('\n') + '\n']);
+                includeHeaders ? (headers.join(',') + '\n' + r) : r
+              ]);
+              
               data[item.i] = blb;
               bytes+= blb.size;
               state.kb = Math.round(bytes/1024);

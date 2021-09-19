@@ -1,55 +1,59 @@
 
 // make a request to lastFM
-function lastFM(data, callback){
+function lastFM(data, callback) {
   return reqwest({
-    url:"https://ws.audioscrobbler.com/2.0/",
+    url: "https://ws.audioscrobbler.com/2.0/",
     data: data,
     type: 'xml',
-    success: function(data){
-      if(callback){callback(false, data)}
+    success: function (data) {
+      if (callback) { callback(false, data) }
     },
-    error: function(err){
-      if(callback){callback(err)}
+    error: function (err) {
+      if (callback) { callback(err) }
     }
   })
 }
 
 // generate data for a request
-function requestData(api_key, user, page){
+function requestData(api_key, user, page) {
   return {
-    method:'user.getrecenttracks',
-    user:user,
-    api_key:api_key,
-    limit:200,
+    method: 'user.getrecenttracks',
+    user: user,
+    api_key: api_key,
+    limit: 200,
     page: page || 1
   }
 }
 
 // generate a list of request data objects
-function requestList(api_key, user, page_count){
+function requestList(api_key, user, page_count) {
   var requests = [];
-  for(var page = 1; page <= page_count; page++){
+  for (var page = 1; page <= page_count; page++) {
     requests.push(requestData(api_key, user, page))
   }
   return requests
 }
 
 // extract the data from the xml response
-function extractTracks(doc){
+function extractTracks(doc) {
 
   // probably nicer ways to do this
   var arr = [];
   var track, obj, child;
   var tracks = doc.evaluate('lfm/recenttracks/track', doc, null, XPathResult.ANY_TYPE, null)
-  while (track = tracks.iterateNext()){
+  while (track = tracks.iterateNext()) {
     obj = {};
 
     for (var i = track.childNodes.length - 1; i >= 0; i--) {
       child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
 
-      if(child.tagName === 'artist') {
-        obj.artist_mbid = child.getAttribute('mbid');
+      if (child.tagName) {
+        var mbid = child.getAttribute('mbid');
+
+        if (mbid) {
+          obj[`${child.tagName}_mbid`] = mbid;
+        }
       }
     };
     arr.push(obj)
@@ -58,34 +62,33 @@ function extractTracks(doc){
   return arr;
 }
 
-function extractPageCount(doc){
+function extractPageCount(doc) {
   var recenttracks = doc.evaluate('lfm/recenttracks', doc, null, XPathResult.ANY_TYPE, null).iterateNext()
   return parseInt(recenttracks.getAttribute('totalPages'), 10)
 }
 
 // pull out a row of keys
-function row(keys, obj){
-  return keys.map(function(k){
+function row(keys, obj) {
+  return keys.map(function (k) {
     return obj[k]
   })
 }
 
 // create a csv row from an array
-function csv(array){
-
+function csv(array) {
   // this is not a world class csv generator
-  return array.map(function(item){
-    return  typeof(item) === 'string' ? 
-      item.replace(/[\",]/g,'') :
+  return array.map(function (item) {
+    return typeof (item) === 'string' ?
+      item.replace(/[\",]/g, '') :
       item;
   }).join(',')
 }
 
 // delay a function by millis
-function delay(fn, millis){
-  return function(){
+function delay(fn, millis) {
+  return function () {
     var args = [].slice.call(arguments);
-    setTimeout.apply(this, [fn,millis].concat(args));
+    setTimeout.apply(this, [fn, millis].concat(args));
   }
 }
 
