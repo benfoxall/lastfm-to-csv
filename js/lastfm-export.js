@@ -43,9 +43,14 @@ function extractTracks(doc){
   var tracks = doc.evaluate('lfm/recenttracks/track', doc, null, XPathResult.ANY_TYPE, null)
   while (track = tracks.iterateNext()){
     obj = {};
+
     for (var i = track.childNodes.length - 1; i >= 0; i--) {
       child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
+
+      if(child.tagName === 'artist') {
+        obj.artist_mbid = child.getAttribute('mbid');
+      }
     };
     arr.push(obj)
   }

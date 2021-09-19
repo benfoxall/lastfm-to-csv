@@ -33,6 +33,11 @@
         <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required rv-disabled="submitted">
       </div>
       <button type="submit" class="btn btn-primary btn-lg"  rv-disabled="submitted">Fetch tracks</button>
+      <br />
+      <div class="form-group">
+        <input type="checkbox" class="form-control input-lg" name="lastfm-include-mbid" id="lastfm-include-mbid" checked>
+        <label for="lastfm-include-mbid">Include MusicBrainz ID</label>
+      </div>
     </form>
 
     <section id="results" rv-show="submitted" style="display:none">
@@ -176,6 +181,8 @@
               }
             })
 
+          var includeMBID = $('#lastfm-include-mbid').prop('checked');
+
           async.eachSeries(requests, function(item, callback){
             if(state.cancelled) return callback(false);
 
@@ -185,6 +192,9 @@
             .then(function(tracks){
               var blb = new Blob([
                 tracks.map(function(d){
+                  if(includeMBID) {
+                    return row(['artist', 'album', 'name', 'date', 'mbid', 'artist_mbid'], d)
+                  }
                   return row(['artist', 'album', 'name', 'date'], d)
                 })
                 .map(csv).join('\n') + '\n']);
