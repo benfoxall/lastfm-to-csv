@@ -21,7 +21,7 @@
       </h1>
     </div>
     <p class="lead">This fetches data from the lastfm api, and formats it as a csv document</p>
-
+    <p class="lead">Number of total pages is calculated independently of the time interval</p>
     <div class="alert alert-warning" style="display:none" rv-show="user_error">
       Couldn't find user.
       This error may also occur if you have AdBlock enabled,
@@ -31,6 +31,14 @@
     <form class="form-inline">
       <div class="form-group" rv-class-has-error="user_error">
         <input type="text" class="form-control input-lg" placeholder="lastfm username" name="lastfm-user" required rv-disabled="submitted">
+        <select id="timepicker" value="" class="form-control input-lg" title="Select time interval" rv-disabled="submitted">
+          <option value="overall">Overall</option>
+          <option value="lasthour">Last Hour</option>
+          <option value="lastday">Last Day</option>
+          <option value="lastmonth">Last Month</option>
+          <option value="last3months">Last 3 Month</option>
+          <option value="lastyear">Last Year</option>
+        </select>
       </div>
       <button type="submit" class="btn btn-primary btn-lg"  rv-disabled="submitted">Fetch tracks</button>
     </form>
@@ -161,8 +169,36 @@
         e.preventDefault();
         state.cancelled = true;
       })
-
+      
       $('form').on('submit', function(e){
+        var from = null;
+        switch ($('#timepicker').val()){
+          case "lasthour" : 
+            from  = new Date();
+            from.setHours( from.getHours() -1 );
+            break;
+          case "lastday" :
+            from  = new Date();
+            from.setHours( from.getHours() -24 );
+            break;
+          case "lastmonth":
+            from  = new Date(); 
+            from.setMonth( from.getMonth() -1 );
+            break;
+          case "last3months" :
+            from  = new Date();
+            from.setMonth( from.getMonth() -3 );
+            break;
+          case "lastyear" :
+            from  = new Date();
+            from.setFullYear( from.getFullYear() -1 );
+            break;
+        
+        }
+        if (from!=null)
+          timestamp  = from.getTime() / 1000;
+        else 
+          timestamp = 0;
         e.preventDefault();
 
         state.submitted = true;
@@ -201,8 +237,14 @@
 
             state.status = "fetching page " + (item.i) + "/" + page_count;
             lastFM(item.data)
-            .then(extractTracks)
+            .then(function(doc){
+              return extractTracks(doc,from);
+            })
             .then(function(tracks){
+              if (tracks.length < 200){
+                state.cancelled  =true;
+              }
+
               var blb = new Blob([
                 tracks.map(function(d){
                   return row(['artist', 'album', 'name', 'date'], d)
