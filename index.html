@@ -37,6 +37,7 @@
 
     <section id="results" rv-show="submitted" style="display:none">
       <h1>{ status }</h1>
+      <h2><small>{dates | timerange}</small></h2>
       <!--p>
         <span class="label label-warning">
           retries: <span data-bind="retries">-</span>
@@ -113,6 +114,7 @@
         user_error: false,
         complete:   false,
         errors: 0,
+        dates: [null, null],
 
         // settings
         api_key:'',
@@ -125,6 +127,24 @@
           return !this.complete
         }
       };
+
+
+      function extend([min, max], date_str){
+        if(!date_str) return [min,max]
+        const date = new Date(date_str)
+
+        return [
+          date < min || min === null ? date : min,
+          date > max || max === null ? date : max
+        ]
+      }
+
+      let formatter = new Intl.DateTimeFormat(navigator.language, { month: 'short', year: 'numeric' });
+      
+      rivets.formatters.timerange = function([from, to]) {
+        if(!(from || to)) return '-'
+        return formatter.formatRange(from, to)
+      }
 
       rivets.bind(document, state)
 
@@ -191,6 +211,9 @@
               data[item.i] = blb;
               bytes+= blb.size;
               state.kb = Math.round(bytes/1024);
+              
+              state.dates = extend(state.dates, tracks[0].date)
+              state.dates = extend(state.dates, tracks[tracks.length - 1].date)
             })
             .fail(function(){
               state.errors++;
