@@ -215,7 +215,8 @@
               state.dates = extend(state.dates, tracks[0].date)
               state.dates = extend(state.dates, tracks[tracks.length - 1].date)
             })
-            .fail(function(){
+            .fail(function(error){
+              console.error(error);
               state.errors++;
             })
             .always(function(){
