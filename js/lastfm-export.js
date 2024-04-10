@@ -46,6 +46,14 @@ function extractTracks(doc){
     for (var i = track.childNodes.length - 1; i >= 0; i--) {
       child = track.childNodes[i];
       obj[child.tagName] = child.textContent;
+
+      if (child.tagName) {
+        var mbid = child.getAttribute('mbid');
+
+        if (mbid) {
+          obj[`${child.tagName}_mbid`] = mbid;
+        }
+      }
     };
     arr.push(obj)
   }
