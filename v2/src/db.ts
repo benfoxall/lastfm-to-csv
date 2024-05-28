@@ -20,7 +20,7 @@ class LastFmDB extends Dexie {
         super(databaseName);
         this.version(1).stores({
             users: 'user',
-            tracks: '[_user+_date], _date, mbid, album.mbid',
+            tracks: '[_user+_date], _user, _date, mbid, album.mbid',
             // ranges: 'id++, user, from, to',
         });
 
