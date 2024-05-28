@@ -26,3 +26,6 @@ node_modules
 
 # esbuild output
 v2/dist
+
+# 
+.DS_Store
