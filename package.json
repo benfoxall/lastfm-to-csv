@@ -4,7 +4,7 @@
   },
   "scripts": {
     "start": "esbuild v2/src/main.js --outdir=v2/dist --jsx=automatic --format=esm --bundle --sourcemap --watch --servedir=v2 --define:DEV=true",
-    "build": "esbuild v2/src/main.js --outdir=v2/dist --jsx=automatic --format=esm --bundle --sourcemap --define:DEV=false"
+    "build": "esbuild v2/src/main.js --outdir=v2/dist --jsx=automatic --format=esm --bundle --sourcemap --minify --define:DEV=false"
     
   }
 }
