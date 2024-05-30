@@ -28,7 +28,7 @@ export const App = () => {
                 db.users.add({user})
             }
         }}>
-            <input name="username" placeholder="lastfm username" />
+            <input name="username" placeholder="lastfm username" autoComplete="off" />
             <button>Add user</button>
         </form>
     </>
@@ -69,17 +69,14 @@ function User({user}: {user: string}) {
     }
 
     return <section>
-        <h4>{user}</h4>
+        <h2>{user}</h2>
 
         <button onClick={remove}>&times; remove</button>
             
             <br />
             <button onClick={() => load()}>load tracks</button>
 
-            <p>{count || 0}</p>
-
-            <br /><br />
-
+            <p>tracks: {count || 0}</p>
     </section>
 
 }
