@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Comidas y Colesterol</title>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { padding-top: 20px; }
+    .cholesterol-bar { height: 20px; border-radius: 4px; transition: width 0.4s; }
+    .stat-card { border-left: 4px solid #337ab7; padding: 10px 15px; margin-bottom: 10px; background: #f9f9f9; border-radius: 4px; }
+    .stat-card.danger { border-left-color: #d9534f; }
+    .stat-card.warning { border-left-color: #f0ad4e; }
+    .stat-card.success { border-left-color: #5cb85c; }
+    .meal-row td { vertical-align: middle; }
+    #progress-container { background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+    .food-suggestions { position: absolute; z-index: 100; background: white; border: 1px solid #ccc; width: 100%; max-height: 200px; overflow-y: auto; }
+    .food-suggestion-item { padding: 6px 12px; cursor: pointer; }
+    .food-suggestion-item:hover { background: #f5f5f5; }
+    .form-group { position: relative; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <h1>Registro de Comidas <small>Monitor de Colesterol</small></h1>
+  </div>
+
+  <!-- Daily Summary -->
+  <div class="row" id="summary-section">
+    <div class="col-md-12">
+      <h3>Resumen del día <small id="current-date"></small></h3>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card" id="card-cholesterol">
+        <div><strong>Colesterol Total</strong></div>
+        <div id="total-cholesterol" style="font-size:2em">0 <small>mg</small></div>
+        <div id="progress-container">
+          <div id="cholesterol-bar" class="cholesterol-bar" style="width:0%; background:#5cb85c; height:20px;"></div>
+        </div>
+        <small>Límite diario recomendado: <strong>300 mg</strong></small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div><strong>Calorías</strong></div>
+        <div id="total-calories" style="font-size:2em">0 <small>kcal</small></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div><strong>Grasas Saturadas</strong></div>
+        <div id="total-sat-fat" style="font-size:2em">0 <small>g</small></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div><strong>Comidas registradas</strong></div>
+        <div id="total-meals" style="font-size:2em">0</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Add Meal Form -->
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Registrar comida</h3>
+      <form id="meal-form">
+        <div class="form-group">
+          <label>Alimento</label>
+          <input type="text" class="form-control" id="food-name" placeholder="Ej: huevo frito, leche entera..." autocomplete="off" required>
+          <div id="food-suggestions" class="food-suggestions" style="display:none"></div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label>Porción (g / ml)</label>
+              <input type="number" class="form-control" id="food-portion" placeholder="100" min="1" value="100" required>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <label>Momento del día</label>
+              <select class="form-control" id="meal-time">
+                <option value="Desayuno">Desayuno</option>
+                <option value="Almuerzo">Almuerzo</option>
+                <option value="Cena">Cena</option>
+                <option value="Merienda">Merienda</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-4">
+            <div class="form-group">
+              <label>Colesterol (mg)</label>
+              <input type="number" class="form-control" id="food-cholesterol" placeholder="0" min="0" step="0.1" required>
+            </div>
+          </div>
+          <div class="col-xs-4">
+            <div class="form-group">
+              <label>Calorías (kcal)</label>
+              <input type="number" class="form-control" id="food-calories" placeholder="0" min="0" step="0.1">
+            </div>
+          </div>
+          <div class="col-xs-4">
+            <div class="form-group">
+              <label>Grasas Sat. (g)</label>
+              <input type="number" class="form-control" id="food-sat-fat" placeholder="0" min="0" step="0.1">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notas (opcional)</label>
+          <input type="text" class="form-control" id="food-notes" placeholder="Ej: con aceite de oliva">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Agregar comida</button>
+      </form>
+    </div>
+
+    <!-- Weekly chart -->
+    <div class="col-md-6">
+      <h3>Últimos 7 días <small>(colesterol mg)</small></h3>
+      <div id="weekly-chart" style="padding: 10px 0;"></div>
+      <hr>
+      <h4>Información nutricional de referencia</h4>
+      <p class="text-muted" style="font-size:13px">
+        La <strong>AHA</strong> recomienda menos de <strong>300 mg/día</strong> de colesterol dietético
+        (menos de 200 mg/día si tiene enfermedad cardiovascular).<br>
+        Los alimentos altos en colesterol incluyen: yema de huevo (~186 mg/unidad),
+        hígado de res (~372 mg/100g), mantequilla (~215 mg/100g), camarones (~189 mg/100g).
+      </p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Meals Table -->
+  <div class="row">
+    <div class="col-md-12">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Registro del día</h3>
+        <div>
+          <input type="date" class="form-control" id="date-picker" style="display:inline-block;width:auto">
+          <button class="btn btn-default btn-sm" onclick="MealTracker.exportCSV()">
+            <span class="glyphicon glyphicon-download-alt"></span> Exportar CSV
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="MealTracker.clearDay()">
+            <span class="glyphicon glyphicon-trash"></span> Borrar día
+          </button>
+        </div>
+      </div>
+      <table class="table table-striped table-hover" id="meals-table">
+        <thead>
+          <tr>
+            <th>Momento</th>
+            <th>Alimento</th>
+            <th>Porción</th>
+            <th>Colesterol</th>
+            <th>Calorías</th>
+            <th>Grasas Sat.</th>
+            <th>Notas</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="meals-body">
+          <tr id="empty-row"><td colspan="8" class="text-center text-muted">No hay comidas registradas hoy.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/meal-tracker.js"></script>
+</body>
+</html>
