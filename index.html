@@ -153,7 +153,9 @@
 
       $('[href=#download]').on('click', function(e){
         e.preventDefault();
-        var b = new Blob(data, {type: 'text/csv'})
+        // Prepend UTF-8 BOM so Excel detects UTF-8 on Windows
+        var blobParts = ['\uFEFF'].concat(data);
+        var b = new Blob(blobParts, {type: 'text/csv;charset=utf-8;'})
         saveAs(b, ($('[name=lastfm-user]').val()||"lastFM") + '.csv')
       })
 

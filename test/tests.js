@@ -207,10 +207,9 @@ describe('csv', function(){
   //   .should.eql('one,"\\"",three')
   // })
 
-  it('removes problem characters', function(){
+  it('escapes quotes and commas correctly', function(){
     csv(['o"n"e',',two,','"three"'])
-    .should.eql('one,two,three')
-
+    .should.eql('"o""n""e",",two,","""three"""')
   })
 
 })
