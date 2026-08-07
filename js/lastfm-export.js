@@ -68,12 +68,20 @@ function row(keys, obj){
 // create a csv row from an array
 function csv(array){
 
-  // this is not a world class csv generator
+  // proper CSV escaping (RFC4180):
+  // - double any internal quotes
+  // - wrap fields that contain comma, quote, CR or LF in quotes
   return array.map(function(item){
-    return  typeof(item) === 'string' ? 
-      item.replace(/[\",]/g,'') :
-      item;
-  }).join(',')
+    if (typeof item !== 'string') return item;
+    var s = item;
+    if (s.indexOf('"') !== -1) {
+      s = s.replace(/"/g, '""');
+    }
+    if (/[",\r\n]/.test(s)) {
+      return '"' + s + '"';
+    }
+    return s;
+  }).join(',');
 }
 
 // delay a function by millis
